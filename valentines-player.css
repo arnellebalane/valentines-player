@@ -1,0 +1,533 @@
+*,
+*:before,
+*:after {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+
+html {
+    height: 100%;
+    font-size: 62.5%;
+}
+
+
+body {
+    height: 100%;
+}
+
+
+.player-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: left 250ms cubic-bezier(0.74, 0.06, 0.36, 1.68);
+}
+
+.player-container.shrinked {
+    left: 300px;
+}
+
+
+.control {
+    position: absolute;
+    top: 50%;
+    z-index: 1;
+    width: 20px;
+    height: 20px;
+    margin-top: -10px;
+    background-color: #941242;
+    cursor: pointer;
+    transform: rotateZ(-135deg);
+    transition: transform 200ms cubic-bezier(0.74, 0.06, 0.36, 1.68);
+}
+
+.control:hover,
+.control:focus {
+    transform: rotateZ(-135deg) scale(1.25);
+}
+
+
+.control.prev {
+    left: calc(50% - 220px);
+}
+
+.control.next {
+    right: calc(50% - 220px);
+}
+
+.control.prev::before,
+.control.prev::after,
+.control.next::before,
+.control.next::after {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 8px;
+}
+
+.control.prev::before,
+.control.prev::after {
+    border-top: 2px solid #fff;
+    border-right: 2px solid #fff;
+}
+
+.control.prev::before {
+    top: 5px;
+    right: 5px;
+}
+
+.control.prev::after {
+    top: 8px;
+    right: 8px;
+}
+
+.control.next::before,
+.control.next::after {
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+}
+
+.control.next::before {
+    left: 5px;
+    bottom: 5px;
+}
+
+.control.next::after {
+    left: 8px;
+    bottom: 8px;
+}
+
+
+.control.stop {
+    right: calc(50% - 260px);
+}
+
+.control.stop::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 8px;
+    height: 8px;
+    background-color: white;
+    transform: rotate(45deg);
+}
+
+
+.control.playlist-toggle {
+    left: calc(50% - 260px);
+}
+
+.control.playlist-toggle::before {
+    content: "";
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 10px;
+    height: 10px;
+    border-left: 2px solid white;
+    border-bottom: 2px solid white;
+}
+
+
+.control.playlist-toggle.open {
+    transform: rotateZ(45deg);
+    transition-property: left, transform;
+    transition-duration: 250ms, 200ms;
+    transition-timing-function: cubic-bezier(0.74, 0.06, 0.36, 1.68);
+}
+
+.control.playlist-toggle.open:hover {
+    transform: rotateZ(45deg) scale(1.25);
+}
+
+
+.playlist {
+    position: absolute;
+    top: 0;
+    left: -500px;
+    bottom: 0;
+    z-index: 1;
+    width: 500px;
+    padding: 200px 20px 200px 120px;
+    background-color: #941242;
+    -webkit-clip-path: polygon(0 0, 75% 0, 100% 100%, 0 100%);
+    list-style: none;
+    transition: left 250ms cubic-bezier(0.74, 0.06, 0.36, 1.68);
+}
+
+
+.playlist.open {
+    left: -100px;
+}
+
+
+.playlist h3 {
+    padding: 10px;
+    font: bold 1.4rem/1 "Open Sans", "Helvetica", "Arial", sans-serif;
+    text-transform: uppercase;
+    color: #500a24;
+}
+
+
+.playlist li {
+    display: block;
+    padding: 10px;
+    font: normal 1.4rem/1 "Open Sans", "Helvetica", "Arial", sans-serif;
+    color: white;
+    cursor: pointer;
+    transition: padding-left 180ms cubic-bezier(0.74, 0.06, 0.36, 1.68);
+}
+
+.playlist li:hover,
+.playlist li.current {
+    padding-left: 30px;
+    color: #941242;
+    background-color: white;
+}
+
+
+a {
+    position: absolute;
+    left: 50%;
+    bottom: 50px;
+    width: 30px;
+    padding: 7px 6px;
+    margin-left: -12px;
+    font: normal 1.4rem/1 "Open Sans", "Helvetica", "Arial", sans-serif;
+    text-indent: 24px;
+    text-decoration: none;
+    text-transform: lowercase;
+    white-space: nowrap;
+    color: #941242;
+    overflow: hidden;
+    transform: scale(0);
+    transition-property: width, margin-left;
+    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.74, 0.06, 0.36, 1.68);
+    animation: grow 250ms 20s cubic-bezier(0.74, 0.06, 0.36, 1.68) forwards;
+}
+
+a::before {
+    content: "\2764";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 30px;
+    height: 30px;
+    font: bold 2.4rem "Open Sans", "Helvetica", "Arial", sans-serif;
+    text-align: center;
+    text-indent: 0;
+    line-height: 30px;
+    color: #941242;
+}
+
+a:hover,
+a:focus {
+    width: 110px;
+    margin-left: -52px;
+}
+
+
+.element,
+.container,
+.clone {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 300px;
+    height: 300px;
+    margin: auto;
+}
+
+
+.container {
+    cursor: pointer;
+}
+
+
+.element,
+.clone {
+    background-color: #941242;
+    border-radius: 200px;
+}
+
+
+.element::before,
+.clone::before {
+    content: "\2764";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    font: bold 20rem "Open Sans", "Helvetica", "Arial", sans-serif;
+    text-align: center;
+    line-height: 300px;
+    color: white;
+    border-radius: 50%;
+    overflow: hidden;
+    text-shadow: 1px 1px 0 #670c2e,
+        2px 2px 0 #670c2e,
+        3px 3px 0 #670c2e,
+        4px 4px 0 #670c2e,
+        5px 5px 0 #670c2e,
+        6px 6px 0 #670c2e,
+        7px 7px 0 #670c2e,
+        8px 8px 0 #670c2e,
+        9px 9px 0 #670c2e,
+        10px 10px 0 #670c2e,
+        11px 11px 0 #670c2e,
+        12px 12px 0 #670c2e,
+        13px 13px 0 #670c2e,
+        14px 14px 0 #670c2e,
+        15px 15px 0 #670c2e,
+        16px 16px 0 #670c2e,
+        17px 17px 0 #670c2e,
+        18px 18px 0 #670c2e,
+        19px 19px 0 #670c2e,
+        20px 20px 0 #670c2e,
+        21px 21px 0 #670c2e,
+        22px 22px 0 #670c2e,
+        23px 23px 0 #670c2e,
+        24px 24px 0 #670c2e,
+        25px 25px 0 #670c2e,
+        26px 26px 0 #670c2e,
+        27px 27px 0 #670c2e,
+        28px 28px 0 #670c2e,
+        29px 29px 0 #670c2e,
+        30px 30px 0 #670c2e,
+        31px 31px 0 #670c2e,
+        32px 32px 0 #670c2e,
+        33px 33px 0 #670c2e,
+        34px 34px 0 #670c2e,
+        35px 35px 0 #670c2e,
+        36px 36px 0 #670c2e,
+        37px 37px 0 #670c2e,
+        38px 38px 0 #670c2e,
+        39px 39px 0 #670c2e,
+        40px 40px 0 #670c2e,
+        41px 41px 0 #670c2e,
+        42px 42px 0 #670c2e,
+        43px 43px 0 #670c2e,
+        44px 44px 0 #670c2e,
+        45px 45px 0 #670c2e,
+        46px 46px 0 #670c2e,
+        47px 47px 0 #670c2e,
+        48px 48px 0 #670c2e,
+        49px 49px 0 #670c2e,
+        50px 50px 0 #670c2e,
+        51px 51px 0 #670c2e,
+        52px 52px 0 #670c2e,
+        53px 53px 0 #670c2e,
+        54px 54px 0 #670c2e,
+        55px 55px 0 #670c2e,
+        56px 56px 0 #670c2e,
+        57px 57px 0 #670c2e,
+        58px 58px 0 #670c2e,
+        59px 59px 0 #670c2e,
+        60px 60px 0 #670c2e,
+        61px 61px 0 #670c2e,
+        62px 62px 0 #670c2e,
+        63px 63px 0 #670c2e,
+        64px 64px 0 #670c2e,
+        65px 65px 0 #670c2e,
+        66px 66px 0 #670c2e,
+        67px 67px 0 #670c2e,
+        68px 68px 0 #670c2e,
+        69px 69px 0 #670c2e,
+        70px 70px 0 #670c2e,
+        71px 71px 0 #670c2e,
+        72px 72px 0 #670c2e,
+        73px 73px 0 #670c2e,
+        74px 74px 0 #670c2e,
+        75px 75px 0 #670c2e,
+        76px 76px 0 #670c2e,
+        77px 77px 0 #670c2e,
+        78px 78px 0 #670c2e,
+        79px 79px 0 #670c2e,
+        80px 80px 0 #670c2e,
+        81px 81px 0 #670c2e,
+        82px 82px 0 #670c2e,
+        83px 83px 0 #670c2e,
+        84px 84px 0 #670c2e,
+        85px 85px 0 #670c2e,
+        86px 86px 0 #670c2e,
+        87px 87px 0 #670c2e,
+        88px 88px 0 #670c2e,
+        89px 89px 0 #670c2e,
+        90px 90px 0 #670c2e,
+        91px 91px 0 #670c2e,
+        92px 92px 0 #670c2e,
+        93px 93px 0 #670c2e,
+        94px 94px 0 #670c2e,
+        95px 95px 0 #670c2e,
+        96px 96px 0 #670c2e,
+        97px 97px 0 #670c2e,
+        98px 98px 0 #670c2e,
+        99px 99px 0 #670c2e,
+        100px 100px 0 #670c2e,
+        101px 101px 0 #670c2e,
+        102px 102px 0 #670c2e,
+        103px 103px 0 #670c2e,
+        104px 104px 0 #670c2e,
+        105px 105px 0 #670c2e,
+        106px 106px 0 #670c2e,
+        107px 107px 0 #670c2e,
+        108px 108px 0 #670c2e,
+        109px 109px 0 #670c2e,
+        110px 110px 0 #670c2e,
+        111px 111px 0 #670c2e,
+        112px 112px 0 #670c2e,
+        113px 113px 0 #670c2e,
+        114px 114px 0 #670c2e,
+        115px 115px 0 #670c2e,
+        116px 116px 0 #670c2e,
+        117px 117px 0 #670c2e,
+        118px 118px 0 #670c2e,
+        119px 119px 0 #670c2e,
+        120px 120px 0 #670c2e,
+        121px 121px 0 #670c2e,
+        122px 122px 0 #670c2e,
+        123px 123px 0 #670c2e,
+        124px 124px 0 #670c2e,
+        125px 125px 0 #670c2e,
+        126px 126px 0 #670c2e,
+        127px 127px 0 #670c2e,
+        128px 128px 0 #670c2e,
+        129px 129px 0 #670c2e,
+        130px 130px 0 #670c2e,
+        131px 131px 0 #670c2e,
+        132px 132px 0 #670c2e,
+        133px 133px 0 #670c2e,
+        134px 134px 0 #670c2e,
+        135px 135px 0 #670c2e,
+        136px 136px 0 #670c2e,
+        137px 137px 0 #670c2e,
+        138px 138px 0 #670c2e,
+        139px 139px 0 #670c2e,
+        140px 140px 0 #670c2e,
+        141px 141px 0 #670c2e,
+        142px 142px 0 #670c2e,
+        143px 143px 0 #670c2e,
+        144px 144px 0 #670c2e,
+        145px 145px 0 #670c2e,
+        146px 146px 0 #670c2e,
+        147px 147px 0 #670c2e,
+        148px 148px 0 #670c2e,
+        149px 149px 0 #670c2e,
+        150px 150px 0 #670c2e,
+        151px 151px 0 #670c2e,
+        152px 152px 0 #670c2e,
+        153px 153px 0 #670c2e,
+        154px 154px 0 #670c2e,
+        155px 155px 0 #670c2e,
+        156px 156px 0 #670c2e,
+        157px 157px 0 #670c2e,
+        158px 158px 0 #670c2e,
+        159px 159px 0 #670c2e,
+        160px 160px 0 #670c2e,
+        161px 161px 0 #670c2e,
+        162px 162px 0 #670c2e,
+        163px 163px 0 #670c2e,
+        164px 164px 0 #670c2e,
+        165px 165px 0 #670c2e,
+        166px 166px 0 #670c2e,
+        167px 167px 0 #670c2e,
+        168px 168px 0 #670c2e,
+        169px 169px 0 #670c2e,
+        170px 170px 0 #670c2e,
+        171px 171px 0 #670c2e,
+        172px 172px 0 #670c2e,
+        173px 173px 0 #670c2e,
+        174px 174px 0 #670c2e,
+        175px 175px 0 #670c2e,
+        176px 176px 0 #670c2e,
+        177px 177px 0 #670c2e,
+        178px 178px 0 #670c2e,
+        179px 179px 0 #670c2e,
+        180px 180px 0 #670c2e,
+        181px 181px 0 #670c2e,
+        182px 182px 0 #670c2e,
+        183px 183px 0 #670c2e,
+        184px 184px 0 #670c2e,
+        185px 185px 0 #670c2e,
+        186px 186px 0 #670c2e,
+        187px 187px 0 #670c2e,
+        188px 188px 0 #670c2e,
+        189px 189px 0 #670c2e,
+        190px 190px 0 #670c2e,
+        191px 191px 0 #670c2e,
+        192px 192px 0 #670c2e,
+        193px 193px 0 #670c2e,
+        194px 194px 0 #670c2e,
+        195px 195px 0 #670c2e,
+        196px 196px 0 #670c2e,
+        197px 197px 0 #670c2e,
+        198px 198px 0 #670c2e,
+        199px 199px 0 #670c2e,
+        200px 200px 0 #670c2e
+}
+
+
+.mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    transform: none;
+    will-change: transform;
+}
+
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    background-color: white;
+    opacity: 1;
+    transition: opacity 700ms ease;
+}
+
+
+.overlay.removed {
+    opacity: 0;
+    pointer-events: none;
+}
+
+
+.overlay p {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100px;
+    font: normal 2rem/1 "Open Sans", "OpenSans", "Helvetica", "Arial", sans-serif;
+    text-transform: lowercase;
+    text-align: center;
+    color: #941242;
+}
+
+
+.overlay span {
+    margin-left: 25px;
+}
+
+
+@keyframes grow {
+    from {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
