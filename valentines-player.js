@@ -32,6 +32,9 @@ function fetchPlaylistAudioFiles(playlist) {
 }
 
 
+
+/** audio player component **/
+
 const player = {
     initialize(playlist) {
         this.context = new AudioContext();
@@ -64,8 +67,14 @@ const player = {
     play(index) {
         if (index === undefined) {
             this.current.play();
-        } else {
+        } else if (index < this.playlist.length) {
+            this.playlist[this.index].audio.pause();
+            this.playlist[this.index].audio.currentTime = 0;
             this.playlist[index].audio.play();
+            this.index = index;
+
+            $$('li', $playlist).forEach(item => item.classList.remove('current'));
+            $(`li:nth-of-type(${index + 1})`, $playlist).classList.add('current');
         }
     }
 };
@@ -79,6 +88,12 @@ function $(selector, context) {
         return (context || document).querySelector(selector);
     }
     return selector;
+}
+
+
+function $$(selector, context) {
+    const results = (context || document).querySelectorAll(selector);
+    return Array.prototype.slice.call(results);
 }
 
 
