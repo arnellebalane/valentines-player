@@ -4,11 +4,16 @@ const $playlistToggle = $('.playlist-toggle');
 const $player = $('.player-container');
 
 const PLAYLIST_FILE = 'playlist.json';
+const VISUALIZATION_SLICES = 300;
+const VISUALIZATION_FPS = 60;
 
 
 fetchPlaylistFile(PLAYLIST_FILE)
     .then(fetchPlaylistAudioFiles)
-    .then(playlist => player.initialize(playlist));
+    .then(playlist => {
+        player.initialize(playlist);
+        visualization.initialize();
+    });
 
 
 
@@ -95,6 +100,80 @@ const player = {
     next() {
         const index = (this.index + 1) % this.playlist.length;
         this.play(index);
+    }
+};
+
+
+
+/** audio visualization component **/
+
+const visualization = {
+    initialize() {
+        this.data = new Uint8Array(player.analyser.frequencyBinCount);
+        this.step = Math.floor(this.data.length / VISUALIZATION_SLICES);
+        this.nosignal = 128;
+        this.slices = [];
+
+        this._initializeContainer();
+        this._runRenderLoop();
+    },
+
+    _initializeContainer() {
+        const element = $('.element');
+        const { width, height } = element.getBoundingClientRect();
+        const sliceWidth = width / VISUALIZATION_SLICES;
+
+        const container = document.createElement('div');
+        container.classList.add('container');
+        container.style.width = `${width}px`;
+        container.style.height = `${height}px`;
+        element.parentNode.replaceChild(container, element);
+
+        for (let i = 0; i < VISUALIZATION_SLICES; i++) {
+            const offset = i * sliceWidth;
+
+            const mask = document.createElement('div');
+            mask.classList.add('mask');
+            mask.style.width = `${sliceWidth}px`;
+            mask.style.height = `${height}px`;
+            mask.style.transform = `translateX(${offset}px)`;
+
+            const clone = document.createElement('div');
+            clone.classList.add('clone');
+            clone.style.width = `${width}px`;
+            clone.style.height = `${height}px`;
+            clone.style.transform = `translateX(${-offset}px)`;
+
+            mask.appendChild(clone);
+            container.appendChild(mask);
+
+            this.slices.push({ offset, element: mask });
+        }
+    },
+
+    _runRenderLoop() {
+        let then = null;
+        const renderLoop = _ => {
+            requestAnimationFrame(renderLoop);
+
+            const now = new Date();
+            if (!then || now - then >= 1000 / VISUALIZATION_FPS) {
+                then = now;
+                this.render();
+            }
+        };
+        renderLoop();
+    },
+
+    render() {
+        player.analyser.getByteTimeDomainData(this.data);
+
+        for (let i = 0, n = 0; i < VISUALIZATION_SLICES; i++, n += this.step) {
+            const { element, offset } = this.slices[i];
+            const data = this.data[n] === undefined ? this.nosignal : this.data[n];
+            const value = Math.abs(data) / this.nosignal;
+            element.style.transform = `translateX(${offset}px) scaleY(${value})`;
+        }
     }
 };
 
