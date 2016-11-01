@@ -197,11 +197,7 @@ const visualization = {
 
 /** user interface interactions **/
 
-$playlistToggle.addEventListener('click', function() {
-    this.classList.toggle('open');
-    $playlist.classList.toggle('open');
-    $player.classList.toggle('shrinked');
-});
+$playlistToggle.addEventListener('click', togglePlaylist);
 
 delegate($playlist, 'click', 'li', function() {
     const index = $$('li', $playlist).indexOf(this);
@@ -213,6 +209,22 @@ delegate($player, 'click', '[data-action]', function() {
 });
 
 delegate($player, 'click', '.container', _ => player.toggle());
+
+document.addEventListener('keydown', e => {
+    switch (e.keyCode) {
+        case 32: player.toggle(); break;
+        case 83: player.stop(); break;
+        case 37: player.prev(); break;
+        case 39: player.next(); break;
+        case 80: togglePlaylist(); break;
+    }
+});
+
+function togglePlaylist() {
+    $playlistToggle.classList.toggle('open');
+    $playlist.classList.toggle('open');
+    $player.classList.toggle('shrinked');
+}
 
 
 
