@@ -170,6 +170,10 @@ const visualization = {
     },
 
     render() {
+        if (player.current().paused) {
+            return null;
+        }
+
         player.analyser.getByteTimeDomainData(this.data);
 
         for (let i = 0, n = 0; i < VISUALIZATION_SLICES; i++, n += this.step) {
