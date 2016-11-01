@@ -178,7 +178,7 @@ const visualization = {
     },
 
     render() {
-        if (player.current().paused) {
+        if (player.current().paused && player.current().currentTime > 0) {
             return null;
         }
 
