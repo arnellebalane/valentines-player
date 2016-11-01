@@ -71,12 +71,12 @@ const player = {
     },
 
     current() {
-        return this.playlist[this.index];
+        return this.playlist[this.index].audio;
     },
 
     play(index) {
         if (index === undefined) {
-            this.playlist[this.index].audio.play();
+            this.current().play();
         } else if (index < this.playlist.length) {
             this.stop();
             this.playlist[index].audio.play();
@@ -88,12 +88,12 @@ const player = {
     },
 
     pause() {
-        this.playlist[this.index].audio.pause();
+        this.current().pause();
     },
 
     stop() {
-        this.playlist[this.index].audio.pause();
-        this.playlist[this.index].audio.currentTime = 0;
+        this.current().pause();
+        this.current().currentTime = 0;
     },
 
     prev() {
@@ -201,7 +201,7 @@ delegate($player, 'click', '[data-action]', function() {
 });
 
 delegate($player, 'click', '.container', _ => {
-    if (player.current().audio.paused) {
+    if (player.current().paused) {
         player.play();
     } else {
         player.pause();
