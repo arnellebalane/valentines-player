@@ -70,6 +70,10 @@ const player = {
         });
     },
 
+    current() {
+        return this.playlist[this.index];
+    },
+
     play(index) {
         if (index === undefined) {
             this.playlist[this.index].audio.play();
@@ -194,6 +198,14 @@ delegate($playlist, 'click', 'li', function() {
 
 delegate($player, 'click', '[data-action]', function() {
     player[this.dataset.action]();
+});
+
+delegate($player, 'click', '.container', _ => {
+    if (player.current().audio.paused) {
+        player.play();
+    } else {
+        player.pause();
+    }
 });
 
 
