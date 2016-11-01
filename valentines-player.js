@@ -17,14 +17,15 @@ function fetchPlaylistFile(path) {
 
 
 function fetchPlaylistAudioFile(path) {
-    return fetch(path).then(response => response.arrayBuffer());
+    return fetch(path).then(response => response.blob());
 }
 
 
 function fetchPlaylistAudioFiles(playlist) {
     return Promise.all(playlist.map(item => {
-        return fetchPlaylistAudioFile(item.url).then(buffer => {
-            item.buffer = buffer;
+        return fetchPlaylistAudioFile(item.url).then(blob => {
+            item.audio = new Audio();
+            item.audio.src = URL.createObjectURL(blob);
             return item;
         });
     }));
@@ -41,8 +42,16 @@ const player = {
         this.index = 0;
 
         $overlay.classList.add('removed');
+        this.connectPlaylistAudioFiles();
         this.renderPlaylist();
         this.play(this.index);
+    },
+
+    connectPlaylistAudioFiles() {
+        this.playlist.forEach(item => {
+            const source = this.context.createMediaElementSource(item.audio);
+            source.connect(this.analyser);
+        });
     },
 
     renderPlaylist() {
@@ -56,7 +65,7 @@ const player = {
         if (index === undefined) {
             this.current.play();
         } else {
-            console.log(`playing item ${index}`);
+            this.playlist[index].audio.play();
         }
     }
 };
