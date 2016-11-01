@@ -66,7 +66,7 @@ const player = {
 
     play(index) {
         if (index === undefined) {
-            this.current.play();
+            this.playlist[this.index].audio.play();
         } else if (index < this.playlist.length) {
             this.playlist[this.index].audio.pause();
             this.playlist[this.index].audio.currentTime = 0;
@@ -76,6 +76,10 @@ const player = {
             $$('li', $playlist).forEach(item => item.classList.remove('current'));
             $(`li:nth-of-type(${index + 1})`, $playlist).classList.add('current');
         }
+    },
+
+    pause() {
+        this.playlist[this.index].audio.pause();
     }
 };
 
