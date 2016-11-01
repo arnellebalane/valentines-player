@@ -132,7 +132,7 @@ const visualization = {
 
     _initializeContainer() {
         const element = $('.element');
-        const { width, height } = element.getBoundingClientRect();
+        const { width, height } = element.getBoundingClientRect();
         const sliceWidth = width / VISUALIZATION_SLICES;
 
         const container = document.createElement('div');
@@ -211,7 +211,7 @@ delegate($player, 'click', '[data-action]', function() {
 delegate($player, 'click', '.container', _ => player.toggle());
 
 document.addEventListener('keydown', e => {
-    switch (e.keyCode) {
+    switch (e.keyCode) {
         case 32: player.toggle(); break;
         case 83: player.stop(); break;
         case 37: player.prev(); break;
