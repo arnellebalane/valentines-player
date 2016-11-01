@@ -68,8 +68,7 @@ const player = {
         if (index === undefined) {
             this.playlist[this.index].audio.play();
         } else if (index < this.playlist.length) {
-            this.playlist[this.index].audio.pause();
-            this.playlist[this.index].audio.currentTime = 0;
+            this.stop();
             this.playlist[index].audio.play();
             this.index = index;
 
