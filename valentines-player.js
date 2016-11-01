@@ -1,275 +1,257 @@
-var context = new AudioContext();
-var processor = context.createScriptProcessor(1024);
-var analyser = context.createAnalyser();
-var playlist = [];
+const $overlay = $('.overlay');
+const $playlist = $('.playlist');
+const $playlistToggle = $('.playlist-toggle');
+const $player = $('.player-container');
 
-$.ajax({
-    url: 'playlist.json',
-    dataType: 'json',
-    success: function(response) {
-        playlist = response;
-        player.initialize();
-    }
-});
+const PLAYLIST_FILE = 'playlist.json';
+const VISUALIZATION_SLICES = 300;
+const VISUALIZATION_FPS = 60;
 
 
-processor.connect(context.destination);
-analyser.connect(processor);
-var data = new Uint8Array(analyser.frequencyBinCount);
-var cache = [];
+fetchPlaylistFile(PLAYLIST_FILE)
+    .then(fetchPlaylistAudioFiles)
+    .then(playlist => {
+        player.initialize(playlist);
+        visualization.initialize();
+    });
 
 
-var $overlay = $('.overlay');
-var $playlist = $('.playlist');
-var $player = $('.player-container');
+
+/** data-fetching helpers **/
+
+function fetchPlaylistFile(path) {
+    return fetch(path).then(response => response.json());
+}
+
+function fetchPlaylistAudioFile(path) {
+    return fetch(path).then(response => response.blob());
+}
+
+function fetchPlaylistAudioFiles(playlist) {
+    return Promise.all(playlist.map(item => {
+        return fetchPlaylistAudioFile(item.url).then(blob => {
+            item.audio = new Audio();
+            item.audio.src = URL.createObjectURL(blob);
+            return item;
+        });
+    }));
+}
 
 
-var player = {
-    index: null,
-    current: null,
 
-    initialize: function() {
-        console.info('Loading audio files...');
-        var count = playlist.length;
-        for (var i = 0; i < playlist.length; i++) {
-            (function(i) {
-                var item = playlist[i];
-                player.load(item.url).then(function(element) {
-                    console.log('"' + item.title + '" loaded.');
-                    item.element = new Sound(element);
-                    player.add({ index: i, title: item.title });
-                    count--;
-                    $overlay.find('span').text(playlist.length - count
-                        + ' / ' + playlist.length);
-                    if (!count) {
-                        player.activate();
-                    }
-                }, function(element) {
-                    throw element.error;
-                });
-            })(i);
-        }
+/** audio player component **/
+
+const player = {
+    initialize(playlist) {
+        this.context = new AudioContext();
+        this.analyser = this.context.createAnalyser();
+        this.analyser.connect(this.context.destination);
+
+        this.playlist = playlist;
+        this.index = 0;
+
+        $overlay.classList.add('removed');
+        this._connectPlaylistAudioFiles();
+        this._renderPlaylist();
+        this.play(this.index);
     },
 
-    activate: function() {
-        $overlay.find('p').html('Player will appear in a while...');
-        $overlay.addClass('removed');
-        player.index = 0;
-        player.play(player.index);
-    },
-
-    load: function(url) {
-        return new Promise(function(resolve, reject) {
-            var audio = new Audio();
-            audio.addEventListener('canplaythrough', function() {
-                resolve(audio);
-            });
-            audio.addEventListener('error', reject);
-            audio.src = url;
+    _connectPlaylistAudioFiles() {
+        this.playlist.forEach(item => {
+            const source = this.context.createMediaElementSource(item.audio);
+            source.connect(this.analyser);
         });
     },
 
-    add: function(item) {
-        var $item = $('<li data-index="' + item.index + '">'
-            + item.title + '</li>');
-        var $before = $playlist.find('li').filter(function() {
-            return +$(this).data('index') < item.index;
-        }).last();
-        if ($before && $before.length) {
-            $before.after($item);
-        } else {
-            $playlist.append($item);
-        }
+    _renderPlaylist() {
+        this.playlist.forEach(item => {
+            const playlistItem = element(`<li>${item.title}</li>`);
+            $playlist.append(playlistItem);
+        });
     },
 
-    play: function(index) {
+    current() {
+        return this.playlist[this.index].audio;
+    },
+
+    play(index) {
         if (index === undefined) {
-            console.info('Resuming playback.');
-            this.current.play();
-        } else {
-            console.info('Playing "' + playlist[index].title + '"');
-            if (this.current) {
-                this.current.stop();
-            }
-            this.current = playlist[index].element;
-            this.current.play();
+            this.current().play();
+        } else if (index < this.playlist.length) {
+            this.stop();
+            this.playlist[index].audio.play();
             this.index = index;
 
-            $playlist.find('li').removeClass('current');
-            $playlist.find('[data-index="' + index + '"]').addClass('current');
+            $$('li', $playlist).forEach(item => item.classList.remove('current'));
+            $(`li:nth-of-type(${index + 1})`, $playlist).classList.add('current');
         }
     },
 
-    pause: function() {
-        console.info('Pausing playback.');
-        for (var i = 0; i < data.length; i++) {
-            cache[i] = data[i];
-        }
-        this.current.pause();
+    pause() {
+        this.current().pause();
     },
 
-    toggle: function() {
-        if (this.current.paused) {
+    toggle() {
+        if (this.current().paused) {
             this.play();
         } else {
             this.pause();
         }
     },
 
-    stop: function() {
-        console.info('Stopping playback.');
-        cache = [];
-        this.current.stop();
+    stop() {
+        this.current().pause();
+        this.current().currentTime = 0;
     },
 
-    prev: function() {
-        player.index--;
-        if (player.index < 0) {
-            player.index = playlist.length - 1;
-        }
-        player.play(player.index);
+    prev() {
+        const index = this.index > 0 ? this.index - 1 : this.playlist.length - 1;
+        this.play(index);
     },
 
-    next: function() {
-        player.play(++player.index % playlist.length);
+    next() {
+        const index = (this.index + 1) % this.playlist.length;
+        this.play(index);
     }
 };
 
 
-function Sound(element) {
-    this.paused = element.paused;
 
-    var sound = context.createMediaElementSource(element);
-    sound.connect(analyser);
-    sound.connect(context.destination);
+/** audio visualization component **/
 
-    element.onended = player.next;
+const visualization = {
+    initialize() {
+        this.data = new Uint8Array(player.analyser.frequencyBinCount);
+        this.step = Math.floor(this.data.length / VISUALIZATION_SLICES);
+        this.nosignal = 128;
+        this.slices = [];
 
-    processor.onaudioprocess = function() {
-        analyser.getByteTimeDomainData(data);
-    };
+        this._initializeContainer();
+        this._runRenderLoop();
+    },
 
-    this.play = function() {
-        this.paused = false;
-        element.play();
-    };
+    _initializeContainer() {
+        const element = $('.element');
+        const { width, height } = element.getBoundingClientRect();
+        const sliceWidth = width / VISUALIZATION_SLICES;
 
-    this.pause = function() {
-        this.paused = true;
-        element.pause();
-    };
+        const container = document.createElement('div');
+        container.classList.add('container');
+        container.style.width = `${width}px`;
+        container.style.height = `${height}px`;
+        element.parentNode.replaceChild(container, element);
 
-    this.stop = function() {
-        this.paused = true;
-        element.currentTime = 0;
-        element.pause();
-    };
-}
+        for (let i = 0; i < VISUALIZATION_SLICES; i++) {
+            const offset = i * sliceWidth;
 
+            const mask = document.createElement('div');
+            mask.classList.add('mask');
+            mask.style.width = `${sliceWidth}px`;
+            mask.style.height = `${height}px`;
+            mask.style.transform = `translateX(${offset}px)`;
 
+            const clone = document.createElement('div');
+            clone.classList.add('clone');
+            clone.style.width = `${width}px`;
+            clone.style.height = `${height}px`;
+            clone.style.transform = `translateX(${-offset}px)`;
 
+            mask.appendChild(clone);
+            container.appendChild(mask);
 
+            this.slices.push({ offset, element: mask });
+        }
+    },
 
-// VISUALIZER COMPONENT
-// Used vanilla JS for faster performance, maybe.
-var NUM_OF_SLICES = 300;
-var STEP = Math.floor(data.length / NUM_OF_SLICES);
-var NO_SIGNAL = 128;
+    _runRenderLoop() {
+        let then = null;
+        const renderLoop = _ => {
+            requestAnimationFrame(renderLoop);
 
-var element = document.querySelector('.element');
-var slices = [];
-var rect = element.getBoundingClientRect();
-var width = rect.width;
-var height = rect.height;
-var widthPerSlice = width / NUM_OF_SLICES;
+            const now = new Date();
+            if (!then || now - then >= 1000 / VISUALIZATION_FPS) {
+                then = now;
+                this.render();
+            }
+        };
+        renderLoop();
+    },
 
-var container = document.createElement('div');
-container.className = 'container';
-container.style.width = width + 'px';
-container.style.height = height + 'px';
+    render() {
+        if (player.current().paused && player.current().currentTime > 0) {
+            return null;
+        }
 
+        player.analyser.getByteTimeDomainData(this.data);
 
-for (var i = 0; i < NUM_OF_SLICES; i++) {
-    var offset = i * widthPerSlice;
-
-    var mask = document.createElement('div');
-    mask.className = 'mask';
-    mask.style.width = widthPerSlice + 'px';
-    mask.style.height = height + 'px';
-    mask.style.transform = 'matrix(1, 0, 0, 1, ' + offset + ', 0)';
-
-    var clone = document.createElement('div');
-    clone.className = 'clone';
-    clone.style.width = width + 'px';
-    clone.style.height = height + 'px';
-    clone.style.transform = 'translate3d(' + -offset + 'px, 0, 0)';
-
-    mask.appendChild(clone);
-    container.appendChild(mask);
-
-    slices.push({ offset: offset, element: mask });
-}
-element.parentNode.replaceChild(container, element);
-
-
-function render() {
-    requestAnimationFrame(render);
-
-    var source = player.current && player.current.paused ? cache : data;
-
-    for (var i = 0, n = 0; i < NUM_OF_SLICES; i++, n += STEP) {
-        var slice = slices[i];
-        var element = slice.element;
-        var offset = slice.offset;
-        var value = Math.abs(source[n] === undefined
-            ? NO_SIGNAL : source[n]) / NO_SIGNAL;
-
-        element.style.transform = 'matrix(1, 0, 0, '
-            + value + ', ' + offset + ', 0)';
+        for (let i = 0, n = 0; i < VISUALIZATION_SLICES; i++, n += this.step) {
+            const { element, offset } = this.slices[i];
+            const data = this.data[n] === undefined ? this.nosignal : this.data[n];
+            const value = Math.abs(data) / this.nosignal;
+            element.style.transform = `translateX(${offset}px) scaleY(${value})`;
+        }
     }
-}
-render();
+};
 
 
 
+/** user interface interactions **/
 
+$playlistToggle.addEventListener('click', togglePlaylist);
 
-// INTERFACE INTERACTIONS
-$('.playlist-toggle').on('click', function() {
-    $(this).toggleClass('open');
-    $playlist.toggleClass('open');
-    $player.toggleClass('shrinked');
-});
-
-
-$playlist.on('click', 'li', function() {
-    var index = +$(this).data('index');
+delegate($playlist, 'click', 'li', function() {
+    const index = $$('li', $playlist).indexOf(this);
     player.play(index);
 });
 
-
-$player.on('click', '.control[data-action]', function() {
-    player[$(this).data('action')]();
+delegate($player, 'click', '[data-action]', function() {
+    player[this.dataset.action]();
 });
 
+delegate($player, 'click', '.container', _ => player.toggle());
 
-$player.on('click', '.container', function() {
-    player.toggle();
-});
-
-
-$(document).on('keydown', function(e) {
-    if (e.keyCode === 32) {
-        player.toggle();
-    } else if (e.keyCode === 83) {
-        player.stop();
-    } else if (e.keyCode === 37) {
-        player.prev();
-    } else if (e.keyCode === 39) {
-        player.next();
-    } else if (e.keyCode === 80) {
-        $player.find('.playlist-toggle').toggleClass('open');
-        $playlist.toggleClass('open');
-        $player.toggleClass('shrinked');
+document.addEventListener('keydown', e => {
+    switch (e.keyCode) {
+        case 32: player.toggle(); break;
+        case 83: player.stop(); break;
+        case 37: player.prev(); break;
+        case 39: player.next(); break;
+        case 80: togglePlaylist(); break;
     }
 });
+
+function togglePlaylist() {
+    $playlistToggle.classList.toggle('open');
+    $playlist.classList.toggle('open');
+    $player.classList.toggle('shrinked');
+}
+
+
+
+/** utility functions **/
+
+function $(selector, context) {
+    if (typeof selector === 'string') {
+        return (context || document).querySelector(selector);
+    }
+    return selector;
+}
+
+function $$(selector, context) {
+    const results = (context || document).querySelectorAll(selector);
+    return Array.prototype.slice.call(results);
+}
+
+function delegate(root, eventname, target, callback) {
+    $(root).addEventListener(eventname, e => {
+        if (e.target.closest(target) && typeof callback === 'function') {
+            callback.call(e.target.closest(target), e);
+        }
+    });
+}
+
+function element(template, stage) {
+    stage = stage || document.createElement('div');
+    stage.innerHTML = template;
+    return stage.firstElementChild;
+}
