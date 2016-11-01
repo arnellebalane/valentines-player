@@ -11,15 +11,16 @@ fetchPlaylistFile(PLAYLIST_FILE)
     .then(playlist => player.initialize(playlist));
 
 
+
+/** data-fetching helpers **/
+
 function fetchPlaylistFile(path) {
     return fetch(path).then(response => response.json());
 }
 
-
 function fetchPlaylistAudioFile(path) {
     return fetch(path).then(response => response.blob());
 }
-
 
 function fetchPlaylistAudioFiles(playlist) {
     return Promise.all(playlist.map(item => {
@@ -45,19 +46,19 @@ const player = {
         this.index = 0;
 
         $overlay.classList.add('removed');
-        this.connectPlaylistAudioFiles();
-        this.renderPlaylist();
+        this._connectPlaylistAudioFiles();
+        this._renderPlaylist();
         this.play(this.index);
     },
 
-    connectPlaylistAudioFiles() {
+    _connectPlaylistAudioFiles() {
         this.playlist.forEach(item => {
             const source = this.context.createMediaElementSource(item.audio);
             source.connect(this.analyser);
         });
     },
 
-    renderPlaylist() {
+    _renderPlaylist() {
         this.playlist.forEach(item => {
             const playlistItem = element(`<li>${item.title}</li>`);
             $playlist.append(playlistItem);
@@ -87,7 +88,7 @@ const player = {
     },
 
     prev() {
-        const index = this.index ? this.index - 1 : this.playlist.length - 1;
+        const index = this.index > 0 ? this.index - 1 : this.playlist.length - 1;
         this.play(index);
     },
 
@@ -108,12 +109,10 @@ function $(selector, context) {
     return selector;
 }
 
-
 function $$(selector, context) {
     const results = (context || document).querySelectorAll(selector);
     return Array.prototype.slice.call(results);
 }
-
 
 function element(template, stage) {
     stage = stage || document.createElement('div');
