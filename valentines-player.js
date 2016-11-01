@@ -100,6 +100,25 @@ const player = {
 
 
 
+/** user interface interactions **/
+
+$playlistToggle.addEventListener('click', function() {
+    this.classList.toggle('open');
+    $playlist.classList.toggle('open');
+    $player.classList.toggle('shrinked');
+});
+
+delegate($playlist, 'click', 'li', function() {
+    const index = $$('li', $playlist).indexOf(this);
+    player.play(index);
+});
+
+delegate($player, 'click', '[data-action]', function() {
+    player[this.dataset.action]();
+});
+
+
+
 /** utility functions **/
 
 function $(selector, context) {
@@ -112,6 +131,14 @@ function $(selector, context) {
 function $$(selector, context) {
     const results = (context || document).querySelectorAll(selector);
     return Array.prototype.slice.call(results);
+}
+
+function delegate(root, eventname, target, callback) {
+    $(root).addEventListener(eventname, e => {
+        if (e.target.closest(target) && typeof callback === 'function') {
+            callback.call(e.target.closest(target), e);
+        }
+    });
 }
 
 function element(template, stage) {
