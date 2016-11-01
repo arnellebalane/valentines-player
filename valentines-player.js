@@ -79,8 +79,9 @@ const player = {
             this.current().play();
         } else if (index < this.playlist.length) {
             this.stop();
-            this.playlist[index].audio.play();
             this.index = index;
+            this.current().play();
+            this.current().onended = _ => this.next();
 
             $$('li', $playlist).forEach(item => item.classList.remove('current'));
             $(`li:nth-of-type(${index + 1})`, $playlist).classList.add('current');
