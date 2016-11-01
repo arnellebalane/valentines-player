@@ -80,6 +80,11 @@ const player = {
 
     pause() {
         this.playlist[this.index].audio.pause();
+    },
+
+    stop() {
+        this.playlist[this.index].audio.pause();
+        this.playlist[this.index].audio.currentTime = 0;
     }
 };
 
