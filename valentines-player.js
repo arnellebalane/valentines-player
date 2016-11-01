@@ -84,6 +84,16 @@ const player = {
     stop() {
         this.playlist[this.index].audio.pause();
         this.playlist[this.index].audio.currentTime = 0;
+    },
+
+    prev() {
+        const index = this.index ? this.index - 1 : this.playlist.length - 1;
+        this.play(index);
+    },
+
+    next() {
+        const index = (this.index + 1) % this.playlist.length;
+        this.play(index);
     }
 };
 
