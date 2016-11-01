@@ -91,6 +91,14 @@ const player = {
         this.current().pause();
     },
 
+    toggle() {
+        if (this.current().paused) {
+            this.play();
+        } else {
+            this.pause();
+        }
+    },
+
     stop() {
         this.current().pause();
         this.current().currentTime = 0;
@@ -204,13 +212,7 @@ delegate($player, 'click', '[data-action]', function() {
     player[this.dataset.action]();
 });
 
-delegate($player, 'click', '.container', _ => {
-    if (player.current().paused) {
-        player.play();
-    } else {
-        player.pause();
-    }
-});
+delegate($player, 'click', '.container', _ => player.toggle());
 
 
 
