@@ -23,9 +23,11 @@
                     value: _ => []
                 },
 
-                index: {
-                    type: Number,
-                    value: 0
+                index: Number,
+
+                audio: {
+                    type: Object,
+                    computed: '_computeAudioProperty(index)'
                 }
             },
 
@@ -45,32 +47,35 @@
                             item.audio.src = URL.createObjectURL(response);
                             return item;
                         });
-                }))
-                .then(playlist => this.playlist = playlist)
-                .then(_ => this.play());
+                })).then(playlist => {
+                    this.playlist = playlist;
+                    this.index = 0;
+                    this.play();
+                });
             },
 
-            audio() {
-                return this.playlist[this.index].audio;
+            _computeAudioProperty() {
+                const item = this.playlist[this.index];
+                return item ? item.audio : null;
             },
 
             play(index) {
                 if (index === undefined) {
-                    this.audio().play();
+                    this.audio.play();
                 } else if (index < this.playlist.length) {
                     this.stop();
                     this.index = index;
-                    this.audio().play();
-                    this.audio().onended = _ => this.next();
+                    this.audio.play();
+                    this.audio.onended = _ => this.next();
                 }
             },
 
             pause() {
-                this.audio().pause();
+                this.audio.pause();
             },
 
             toggle() {
-                if (this.audio().paused) {
+                if (this.audio.paused) {
                     this.play();
                 } else {
                     this.pause();
@@ -78,8 +83,8 @@
             },
 
             stop() {
-                this.audio().pause();
-                this.audio().currentTime = 0;
+                this.audio.pause();
+                this.audio.currentTime = 0;
             },
 
             prev() {
