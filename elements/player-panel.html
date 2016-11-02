@@ -56,10 +56,10 @@
         </style>
 
         <section id="container">
-            <span class="playlist-toggle" title="Toggle Playlist (P)"></span>
+            <span class="playlist-toggle" data-action="toggle-playlist" title="Toggle Playlist (P)"></span>
             <span class="prev" data-action="prev" title="Previous (Left Arrow)"></span>
             <span class="next" data-action="next" title="Next (Right Arrow)"></span>
-            <span class="stop" data-action="stop" title="Stop (S)"></span>
+            <span class="stop" data-action="stop" title="Stop (S)"></span>
         </section>
     </template>
 
@@ -74,8 +74,20 @@
                 }
             },
 
+            ready() {
+                this.$.container.addEventListener('click', e => {
+                    if (e.target.matches('span')) {
+                        this.fire('player-action', { action: e.target.dataset.action });
+                    }
+                });
+            },
+
             _audioChanged() {
                 console.log(this.audio);
+            },
+
+            toggle() {
+                this.$.container.classList.toggle('shrinked');
             }
         });
     </script>

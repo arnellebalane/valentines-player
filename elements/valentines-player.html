@@ -37,6 +37,14 @@
                 this.$.playlist.addEventListener('playlist-item-select', e => {
                     this.play(e.detail.selected);
                 });
+
+                this.$.player.addEventListener('player-action', e => {
+                    if (e.detail.action === 'toggle-playlist') {
+                        this._togglePlaylistPanel();
+                    } else {
+                        this[e.detail.action]();
+                    }
+                });
             },
 
             _fetchPlaylistAudioFiles() {
@@ -59,6 +67,11 @@
             _computeAudioProperty() {
                 const item = this.playlist[this.index];
                 return item ? item.audio : null;
+            },
+
+            _togglePlaylistPanel() {
+                this.$.playlist.toggle();
+                this.$.player.toggle();
             },
 
             play(index) {
