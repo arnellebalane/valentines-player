@@ -4,7 +4,7 @@
 
 <dom-module id="valentines-player">
     <template>
-        <iron-ajax id="playlist-data" url="../playlist.json" handle-as="json" on-response="_fetchPlaylistAudioFiles" auto></iron-ajax>
+        <iron-ajax id="playlist-data" url="[[playlistSource]]" handle-as="json" on-response="_fetchPlaylistAudioFiles" auto></iron-ajax>
     </template>
 
     <script>
