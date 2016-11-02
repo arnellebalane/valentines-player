@@ -16,10 +16,6 @@
             is: 'valentines-player',
 
             properties: {
-                context: Object,
-
-                analyser: Object,
-
                 playlistSource: String,
 
                 playlist: {
@@ -34,10 +30,6 @@
             },
 
             ready() {
-                this.context = new AudioContext();
-                this.analyser = this.context.createAnalyser();
-                this.analyser.connect(this.context.destination);
-
                 this.$.playlist.addEventListener('playlist-item-select', e => {
                     this.play(e.detail.selected);
                 });
@@ -55,15 +47,7 @@
                         });
                 }))
                 .then(playlist => this.playlist = playlist)
-                .then(_ => this._connectPlaylistAudioFiles())
                 .then(_ => this.play());
-            },
-
-            _connectPlaylistAudioFiles() {
-                this.playlist.forEach(item => {
-                    const source = this.context.createMediaElementSource(item.audio);
-                    source.connect(this.analyser);
-                });
             },
 
             audio() {
