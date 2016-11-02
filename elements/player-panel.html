@@ -68,6 +68,13 @@
             is: 'player-panel',
 
             properties: {
+                shrinked: {
+                    type: Boolean,
+                    value: false,
+                    reflectToAttribute: true,
+                    observer: '_shrinkedPropertyChanged'
+                },
+
                 audio: {
                     type: Object,
                     observer: '_audioChanged'
@@ -86,8 +93,12 @@
                 console.log(this.audio);
             },
 
-            toggle() {
-                this.$.container.classList.toggle('shrinked');
+            _shrinkedPropertyChanged() {
+                if (this.shrinked) {
+                    this.$.container.classList.add('shrinked');
+                } else {
+                    this.$.container.classList.remove('shrinked');
+                }
             }
         });
     </script>

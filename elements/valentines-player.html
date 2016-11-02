@@ -9,8 +9,8 @@
     <template>
         <iron-ajax id="playlist-data" url="[[playlistSource]]" handle-as="json" on-response="_fetchPlaylistAudioFiles" auto></iron-ajax>
 
-        <playlist-panel id="playlist" items="[[playlist]]" selected="[[index]]"></playlist-panel>
-        <player-panel id="player" audio="[[audio]]"></player-panel>
+        <playlist-panel id="playlist" items="[[playlist]]" selected="[[index]]" open="[[openPlaylist]]"></playlist-panel>
+        <player-panel id="player" audio="[[audio]]" shrinked="[[openPlaylist]]"></player-panel>
     </template>
 
     <script>
@@ -30,6 +30,11 @@
                 audio: {
                     type: Object,
                     computed: '_computeAudioProperty(index)'
+                },
+
+                openPlaylist: {
+                    type: Boolean,
+                    value: false
                 }
             },
 
@@ -40,7 +45,7 @@
 
                 this.$.player.addEventListener('player-action', e => {
                     if (e.detail.action === 'toggle-playlist') {
-                        this._togglePlaylistPanel();
+                        this.openPlaylist = !this.openPlaylist;
                     } else {
                         this[e.detail.action]();
                     }
@@ -67,11 +72,6 @@
             _computeAudioProperty() {
                 const item = this.playlist[this.index];
                 return item ? item.audio : null;
-            },
-
-            _togglePlaylistPanel() {
-                this.$.playlist.toggle();
-                this.$.player.toggle();
             },
 
             play(index) {
