@@ -60,7 +60,7 @@
 
         <ul id="playlist">
             <template is="dom-repeat" items="[[items]]" as="item">
-                <li class$="[[_playlistItemClass(item, selected)]]">[[item.title]]</li>
+                <li class$="[[_playlistItemClass(item, selected)]]" on-tap="_playlistItemSelect">[[item.title]]</li>
             </template>
         </ul>
     </template>
@@ -105,6 +105,12 @@
                     return 'selected';
                 }
                 return null;
+            },
+
+            _playlistItemSelect(e) {
+                const children = Array.prototype.slice.call(e.target.parentNode.children);
+                const index = children.indexOf(e.target);
+                this.fire('playlist-item-select', { selected: index });
             }
         });
     </script>
