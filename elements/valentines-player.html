@@ -38,8 +38,6 @@
                 this.analyser = this.context.createAnalyser();
                 this.analyser.connect(this.context.destination);
 
-                this._connectPlaylistAudioFiles();
-
                 this.$.playlist.addEventListener('playlist-item-select', e => {
                     this.play(e.detail.selected);
                 });
@@ -55,7 +53,10 @@
                             item.audio.src = URL.createObjectURL(response);
                             return item;
                         });
-                })).then(playlist => this.playlist = playlist);
+                }))
+                .then(playlist => this.playlist = playlist)
+                .then(_ => this._connectPlaylistAudioFiles())
+                .then(_ => this.play());
             },
 
             _connectPlaylistAudioFiles() {
