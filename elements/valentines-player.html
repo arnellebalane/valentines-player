@@ -2,6 +2,7 @@
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 
 <link rel="import" href="playlist-panel.html">
+<link rel="import" href="player-panel.html">
 
 
 <dom-module id="valentines-player">
@@ -9,6 +10,7 @@
         <iron-ajax id="playlist-data" url="[[playlistSource]]" handle-as="json" on-response="_fetchPlaylistAudioFiles" auto></iron-ajax>
 
         <playlist-panel id="playlist" items="[[playlist]]" selected="[[index]]"></playlist-panel>
+        <player-panel id="player" audio="[[audio]]"></player-panel>
     </template>
 
     <script>

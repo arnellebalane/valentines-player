@@ -1,0 +1,23 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+
+<dom-module id="player-panel">
+    <template></template>
+
+    <script>
+        Polymer({
+            is: 'player-panel',
+
+            properties: {
+                audio: {
+                    type: Object,
+                    observer: '_audioChanged'
+                }
+            },
+
+            _audioChanged() {
+                console.log(this.audio);
+            }
+        });
+    </script>
+</dom-module>
