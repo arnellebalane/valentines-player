@@ -52,28 +52,6 @@
                 });
             },
 
-            _fetchPlaylistAudioFiles() {
-                const playlist = this.$['playlist-data'].lastResponse;
-                Promise.all(playlist.map(item => {
-                    return fetch(item.url)
-                        .then(response => response.blob())
-                        .then(response => {
-                            item.audio = new Audio();
-                            item.audio.src = URL.createObjectURL(response);
-                            return item;
-                        });
-                })).then(playlist => {
-                    this.playlist = playlist;
-                    this.index = 0;
-                    this.play();
-                });
-            },
-
-            _computeAudioProperty() {
-                const item = this.playlist[this.index];
-                return item ? item.audio : null;
-            },
-
             play(index) {
                 if (index === undefined) {
                     this.audio.play();
@@ -110,6 +88,28 @@
             next() {
                 const index = (this.index + 1) % this.playlist.length;
                 this.play(index);
+            },
+
+            _computeAudioProperty() {
+                const item = this.playlist[this.index];
+                return item ? item.audio : null;
+            },
+
+            _fetchPlaylistAudioFiles() {
+                const playlist = this.$['playlist-data'].lastResponse;
+                Promise.all(playlist.map(item => {
+                    return fetch(item.url)
+                        .then(response => response.blob())
+                        .then(response => {
+                            item.audio = new Audio();
+                            item.audio.src = URL.createObjectURL(response);
+                            return item;
+                        });
+                })).then(playlist => {
+                    this.playlist = playlist;
+                    this.index = 0;
+                    this.play();
+                });
             }
         });
     </script>
