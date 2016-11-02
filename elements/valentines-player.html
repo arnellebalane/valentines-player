@@ -63,6 +63,48 @@
                     const source = this.context.createMediaElementSource(item.audio);
                     source.connect(this.analyser);
                 });
+            },
+
+            audio() {
+                return this.playlist[this.index].audio;
+            },
+
+            play(index) {
+                if (index === undefined) {
+                    this.audio().play();
+                } else if (index < this.playlist.length) {
+                    this.stop();
+                    this.index = index;
+                    this.audio().play();
+                    this.audio().onended = _ => this.next();
+                }
+            },
+
+            pause() {
+                this.audio().pause();
+            },
+
+            toggle() {
+                if (this.audio().paused) {
+                    this.play();
+                } else {
+                    this.pause();
+                }
+            },
+
+            stop() {
+                this.audio().pause();
+                this.audio().currentTime = 0;
+            },
+
+            prev() {
+                const index = this.index ? this.index - 1 : this.playlist.length - 1;
+                this.play(index);
+            },
+
+            next() {
+                const index = (this.index + 1) % this.playlist.length;
+                this.play(index);
             }
         });
     </script>
