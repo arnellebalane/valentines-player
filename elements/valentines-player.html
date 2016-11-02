@@ -41,7 +41,7 @@
                 this._connectPlaylistAudioFiles();
 
                 this.$.playlist.addEventListener('playlist-item-select', e => {
-                    this.index = e.detail.selected;
+                    this.play(e.detail.selected);
                 });
             },
 
