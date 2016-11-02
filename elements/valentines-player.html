@@ -38,6 +38,8 @@
                 this.analyser = this.context.createAnalyser();
                 this.analyser.connect(this.context.destination);
 
+                this._connectPlaylistAudioFiles();
+
                 this.$.playlist.addEventListener('playlist-item-select', e => {
                     this.index = e.detail.selected;
                 });
@@ -54,6 +56,13 @@
                             return item;
                         });
                 })).then(playlist => this.playlist = playlist);
+            },
+
+            _connectPlaylistAudioFiles() {
+                this.playlist.forEach(item => {
+                    const source = this.context.createMediaElementSource(item.audio);
+                    source.connect(this.analyser);
+                });
             }
         });
     </script>
