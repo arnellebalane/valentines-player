@@ -77,7 +77,7 @@
 
                 audio: {
                     type: Object,
-                    observer: '_audioChanged'
+                    observer: '_audioPropertyChanged'
                 }
             },
 
@@ -89,7 +89,7 @@
                 });
             },
 
-            _audioChanged() {
+            _audioPropertyChanged() {
                 console.log(this.audio);
             },
 

@@ -74,7 +74,7 @@
                     type: Boolean,
                     value: false,
                     reflectToAttribute: true,
-                    observer: '_updatePanelState'
+                    observer: '_openPropertyChanged'
                 },
 
                 selected: {
@@ -93,7 +93,7 @@
                 this.open = !this.open;
             },
 
-            _updatePanelState() {
+            _openPropertyChanged() {
                 if (this.open) {
                     this.classList.add('open');
                 } else {
