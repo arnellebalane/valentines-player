@@ -92,7 +92,7 @@
 
             _computeAudioProperty() {
                 const item = this.playlist[this.index];
-                return item ? item.audio : null;
+                return item ? new Audio(URL.createObjectURL(item.blob)) : null;
             },
 
             _fetchPlaylistAudioFiles() {
@@ -101,8 +101,7 @@
                     return fetch(item.url)
                         .then(response => response.blob())
                         .then(response => {
-                            item.audio = new Audio();
-                            item.audio.src = URL.createObjectURL(response);
+                            item.blob = response;
                             return item;
                         });
                 })).then(playlist => {
