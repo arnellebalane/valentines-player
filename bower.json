@@ -5,7 +5,7 @@
   "authors": [
     "Arnelle Balane <arnellebalane@gmail.com>"
   ],
-  "description": "valentines-themed web-based audio player built with the web audio api",
+  "description": "valentines-themed web-based audio player built with the web audio api and polymer",
   "keywords": [
     "webaudioapi",
     "player",
