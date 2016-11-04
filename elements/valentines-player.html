@@ -64,7 +64,9 @@
             },
 
             pause() {
-                this.audio.pause();
+                if (this.audio) {
+                    this.audio.pause();
+                }
             },
 
             toggle() {
@@ -76,8 +78,10 @@
             },
 
             stop() {
-                this.audio.pause();
-                this.audio.currentTime = 0;
+                if (this.audio) {
+                    this.audio.pause();
+                    this.audio.currentTime = 0;
+                }
             },
 
             prev() {
