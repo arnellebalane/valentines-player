@@ -1,0 +1,28 @@
+{
+  "name": "valentines-player",
+  "main": "index.html",
+  "homepage": "https://github.com/arnellebalane/valentines-player",
+  "authors": [
+    "Arnelle Balane <arnellebalane@gmail.com>"
+  ],
+  "description": "valentines-themed web-based audio player built with the web audio api",
+  "keywords": [
+    "webaudioapi",
+    "player",
+    "music"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "^1.7.0",
+    "iron-ajax": "^1.4.3",
+    "iron-a11y-keys": "^1.0.6"
+  }
+}

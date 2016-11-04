@@ -1,0 +1,118 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+
+<dom-module id="playlist-panel">
+    <template>
+        <style>
+            :host {
+                display: block;
+                width: 500px;
+                padding: 200px 20px 200px 120px;
+                position: absolute;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                z-index: 1;
+                font-family: "Open Sans", "Helvetica", "Arial", sans-serif;
+                font-size: 1.4rem;
+                -webkit-font-smoothing: antialiased;
+                line-height: 1;
+                background-color: #941242;
+                -webkit-clip-path: polygon(0 0, 75% 0, 100% 100%, 0 100%);
+                transform: translateX(-500px);
+                transition: transform 250ms cubic-bezier(0.74, 0.06, 0.36, 1.68);
+            }
+
+            :host(.open) {
+                transform: translateX(-100px);
+            }
+
+            h3 {
+                padding: 10px;
+                font-size: inherit;
+                font-weight: bold;
+                text-transform: uppercase;
+                color: #500a24;
+            }
+
+            ul {
+                padding: 0;
+                list-style: none;
+            }
+
+            li {
+                display: block;
+                padding: 10px;
+                color: #fff;
+                cursor: pointer;
+                transition: padding-left 180ms cubic-bezier(0.74, 0.06, 0.36, 1.68);
+            }
+
+            li:hover,
+            li.selected {
+                padding-left: 30px;
+                color: #941242;
+                background-color: #fff;
+            }
+        </style>
+
+        <h3>Current Playlist</h3>
+
+        <ul id="playlist">
+            <template is="dom-repeat" items="[[items]]" as="item">
+                <li class$="[[_playlistItemClass(item, selected)]]" on-tap="_playlistItemSelect">[[item.title]]</li>
+            </template>
+        </ul>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'playlist-panel',
+
+            properties: {
+                open: {
+                    type: Boolean,
+                    value: false,
+                    reflectToAttribute: true,
+                    observer: '_openPropertyChanged'
+                },
+
+                selected: {
+                    type: Number,
+                    value: 0,
+                    reflectToAttribute: true
+                },
+
+                items: {
+                    type: Array,
+                    value: _ => []
+                }
+            },
+
+            toggle() {
+                this.open = !this.open;
+            },
+
+            _openPropertyChanged() {
+                if (this.open) {
+                    this.classList.add('open');
+                } else {
+                    this.classList.remove('open');
+                }
+            },
+
+            _playlistItemClass(item, selected) {
+                if (this.items.indexOf(item) === selected) {
+                    return 'selected';
+                }
+                return null;
+            },
+
+            _playlistItemSelect(e) {
+                const children = Array.prototype.slice.call(e.target.parentNode.children);
+                const index = children.indexOf(e.target);
+                this.fire('playlist-item-select', { selected: index });
+            }
+        });
+    </script>
+</dom-module>

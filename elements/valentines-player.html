@@ -1,0 +1,215 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+
+<link rel="import" href="playlist-panel.html">
+<link rel="import" href="player-panel.html">
+
+
+<dom-module id="valentines-player">
+    <template>
+        <style>
+            :host {
+                font-family: "Open Sans", "Helvetica", "Arial", sans-serif;
+            }
+
+            .overlay {
+                display: flex;
+                justify-content: center;
+                align-items: flex-end;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 1;
+                background-color: #fff;
+                opacity: 1;
+                transition: opacity 500ms ease;
+            }
+
+            .overlay.hidden {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            .overlay p {
+                margin-bottom: 75px;
+                font-size: 2rem;
+                text-transform: lowercase;
+                color: #941242;
+            }
+
+            a {
+                display: flex;
+                align-items: center;
+                width: 30px;
+                position: absolute;
+                left: 50%;
+                bottom: 50px;
+                font-size: 1.4rem;
+                text-decoration: none;
+                white-space: nowrap;
+                line-height: 30px;
+                color: #941242;
+                overflow: hidden;
+                transform: translateX(-50%);
+                transition: width 200ms cubic-bezier(0.74, 0.06, 0.36, 1.68);
+            }
+
+            a::before {
+                content: "\2764";
+                flex-shrink: 0;
+                display: inline-block;
+                width: 30px;
+                font-size: 2.4rem;
+                font-weight: bold;
+                text-align: center;
+            }
+
+            a:hover,
+            a:focus {
+                width: 110px;
+            }
+        </style>
+
+        <iron-ajax id="playlist-data" url="[[playlistSource]]" handle-as="json" on-response="_fetchPlaylistAudioFiles" auto></iron-ajax>
+
+        <iron-a11y-keys target="[[keybindingsTarget]]" keys="space" on-keys-pressed="toggle"></iron-a11y-keys>
+        <iron-a11y-keys target="[[keybindingsTarget]]" keys="left" on-keys-pressed="prev"></iron-a11y-keys>
+        <iron-a11y-keys target="[[keybindingsTarget]]" keys="right" on-keys-pressed="next"></iron-a11y-keys>
+        <iron-a11y-keys target="[[keybindingsTarget]]" keys="s" on-keys-pressed="stop"></iron-a11y-keys>
+        <iron-a11y-keys target="[[keybindingsTarget]]" keys="p" on-keys-pressed="togglePlaylist"></iron-a11y-keys>
+
+        <playlist-panel id="playlist" items="[[playlist]]" selected="[[index]]" open="[[openPlaylist]]"></playlist-panel>
+        <player-panel id="player" audio="[[audio]]" shrinked="[[openPlaylist]]"></player-panel>
+
+        <a href="https://github.com/arnellebalane/valentines-player" target="_blank">view source</a>
+
+        <div class$="overlay [[_overlayElementClass(loaded)]]">
+            <p>Loading audio files...</p>
+        </div>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'valentines-player',
+
+            properties: {
+                playlistSource: String,
+
+                playlist: {
+                    type: Array,
+                    value: _ => []
+                },
+
+                index: Number,
+
+                loaded: {
+                    type: Boolean,
+                    value: false
+                },
+
+                audio: {
+                    type: Object,
+                    computed: '_computeAudioProperty(index)'
+                },
+
+                openPlaylist: {
+                    type: Boolean,
+                    value: false
+                },
+
+                keybindingsTarget: {
+                    type: Object,
+                    value: _ => document
+                }
+            },
+
+            ready() {
+                this.$.playlist.addEventListener('playlist-item-select', e => {
+                    this.play(e.detail.selected);
+                });
+
+                this.$.player.addEventListener('player-action', e => {
+                    if (e.detail.action === 'toggle-playlist') {
+                        this.togglePlaylist();
+                    } else {
+                        this[e.detail.action]();
+                    }
+                });
+            },
+
+            play(index) {
+                if (index === undefined) {
+                    this.audio.play();
+                } else if (index < this.playlist.length) {
+                    this.stop();
+                    this.index = index;
+                    this.audio.play();
+                    this.audio.onended = _ => this.next();
+                }
+            },
+
+            pause() {
+                if (this.audio) {
+                    this.audio.pause();
+                }
+            },
+
+            toggle() {
+                if (this.audio.paused) {
+                    this.play();
+                } else {
+                    this.pause();
+                }
+            },
+
+            stop() {
+                if (this.audio) {
+                    this.audio.pause();
+                    this.audio.currentTime = 0;
+                }
+            },
+
+            prev() {
+                const index = this.index ? this.index - 1 : this.playlist.length - 1;
+                this.play(index);
+            },
+
+            next() {
+                const index = (this.index + 1) % this.playlist.length;
+                this.play(index);
+            },
+
+            togglePlaylist() {
+                this.openPlaylist = !this.openPlaylist;
+            },
+
+            _computeAudioProperty() {
+                const item = this.playlist[this.index];
+                return item ? new Audio(URL.createObjectURL(item.blob)) : null;
+            },
+
+            _fetchPlaylistAudioFiles() {
+                const playlist = this.$['playlist-data'].lastResponse;
+                Promise.all(playlist.map(item => {
+                    return fetch(item.url)
+                        .then(response => response.blob())
+                        .then(response => {
+                            item.blob = response;
+                            return item;
+                        });
+                })).then(playlist => {
+                    this.playlist = playlist;
+                    this.loaded = true;
+                    this.play(0);
+                });
+            },
+
+            _overlayElementClass() {
+                return this.loaded ? 'hidden' : null;
+            }
+        });
+    </script>
+</dom-module>
