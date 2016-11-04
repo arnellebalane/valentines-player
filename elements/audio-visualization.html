@@ -1,0 +1,89 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+
+<dom-module id="audio-visualization">
+    <template>
+        <style>
+            :host {
+                display: block;
+                width: 300px;
+                height: 300px;
+            }
+
+            .segment {
+                position: absolute;
+                top: 0;
+                left: 0;
+                overflow: hidden;
+                will-change: transform;
+            }
+
+            .visualization {
+                position: absolute;
+                top: 0;
+                left: 0;
+                background-color: #941242;
+                border-radius: 50%;
+            }
+        </style>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'audio-visualization',
+
+            properties: {
+                audio: {
+                    type: Object,
+                    observer: '_audioPropertyChanged'
+                },
+
+                analyser: {
+                    type: Object,
+                    value: _ => {
+                        const context = new AudioContext();
+                        const analyser = context.createAnalyser();
+                        analyser.connect(context.destination);
+                        return analyser;
+                    }
+                },
+
+                source: Object
+            },
+
+            attached() {
+                const { width, height } = this.getBoundingClientRect();
+                const segmentsCount = 300;
+                const segmentWidth = width / segmentsCount;
+
+                for (let i = 0; i < segmentsCount; i++) {
+                    const offset = i * segmentWidth;
+
+                    const segment = document.createElement('div');
+                    segment.classList.add('segment', 'style-scope', 'audio-visualization');
+                    segment.style.width = `${segmentWidth}px`;
+                    segment.style.height = `${height}px`;
+                    segment.style.transform = `translateX(${offset}px)`;
+
+                    const visualization = document.createElement('div');
+                    visualization.classList.add('visualization', 'style-scope', 'audio-visualization');
+                    visualization.style.width = `${width}px`;
+                    visualization.style.height = `${height}px`;
+                    visualization.style.transform = `translateX(${-offset}px)`;
+
+                    segment.appendChild(visualization);
+                    this.appendChild(segment);
+                }
+            },
+
+            _audioPropertyChanged() {
+                const context = this.analyser.context;
+                if (this.source) {
+                    this.source.disconnect();
+                }
+                this.source = context.createMediaElementSource(this.audio);
+                this.source.connect(this.analyser);
+            }
+        });
+    </script>
+</dom-module>

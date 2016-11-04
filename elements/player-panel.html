@@ -1,5 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
+<link rel="import" href="audio-visualization.html">
+
 
 <dom-module id="player-panel">
     <template>
@@ -15,6 +17,13 @@
 
             section.shrinked {
                 left: 300px;
+            }
+
+            audio-visualization {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
             }
 
             span {
@@ -56,6 +65,8 @@
         </style>
 
         <section id="container">
+            <audio-visualization audio="[[audio]]"></audio-visualization>
+
             <span class="playlist-toggle" data-action="toggle-playlist" title="Toggle Playlist (P)"></span>
             <span class="prev" data-action="prev" title="Previous (Left Arrow)"></span>
             <span class="next" data-action="next" title="Next (Right Arrow)"></span>
@@ -75,10 +86,7 @@
                     observer: '_shrinkedPropertyChanged'
                 },
 
-                audio: {
-                    type: Object,
-                    observer: '_audioPropertyChanged'
-                }
+                audio: Object
             },
 
             ready() {
@@ -87,10 +95,6 @@
                         this.fire('player-action', { action: e.target.dataset.action });
                     }
                 });
-            },
-
-            _audioPropertyChanged() {
-                console.log(this.audio);
             },
 
             _shrinkedPropertyChanged() {
