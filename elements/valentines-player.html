@@ -8,6 +8,36 @@
 
 <dom-module id="valentines-player">
     <template>
+        <style>
+            .overlay {
+                display: flex;
+                justify-content: center;
+                align-items: flex-end;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 1;
+                background-color: #fff;
+                opacity: 1;
+                transition: opacity 500ms ease;
+            }
+
+            .overlay.hidden {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            .overlay p {
+                margin-bottom: 75px;
+                font-family: "Open Sans", "Helvetica", "Arial", sans-serif;
+                font-size: 2rem;
+                text-transform: lowercase;
+                color: #941242;
+            }
+        </style>
+
         <iron-ajax id="playlist-data" url="[[playlistSource]]" handle-as="json" on-response="_fetchPlaylistAudioFiles" auto></iron-ajax>
 
         <iron-a11y-keys target="[[keybindingsTarget]]" keys="space" on-keys-pressed="toggle"></iron-a11y-keys>
@@ -18,6 +48,10 @@
 
         <playlist-panel id="playlist" items="[[playlist]]" selected="[[index]]" open="[[openPlaylist]]"></playlist-panel>
         <player-panel id="player" audio="[[audio]]" shrinked="[[openPlaylist]]"></player-panel>
+
+        <div class$="overlay [[_overlayElementClass(loaded)]]">
+            <p>Loading audio files...</p>
+        </div>
     </template>
 
     <script>
@@ -33,6 +67,11 @@
                 },
 
                 index: Number,
+
+                loaded: {
+                    type: Boolean,
+                    value: false
+                },
 
                 audio: {
                     type: Object,
@@ -126,8 +165,13 @@
                         });
                 })).then(playlist => {
                     this.playlist = playlist;
+                    this.loaded = true;
                     this.play(0);
                 });
+            },
+
+            _overlayElementClass() {
+                return this.loaded ? 'hidden' : null;
             }
         });
     </script>
