@@ -1,5 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-a11y-keys/iron-a11y-keys.html">
 
 <link rel="import" href="playlist-panel.html">
 <link rel="import" href="player-panel.html">
@@ -8,6 +9,12 @@
 <dom-module id="valentines-player">
     <template>
         <iron-ajax id="playlist-data" url="[[playlistSource]]" handle-as="json" on-response="_fetchPlaylistAudioFiles" auto></iron-ajax>
+
+        <iron-a11y-keys target="[[keybindingsTarget]]" keys="space" on-keys-pressed="toggle"></iron-a11y-keys>
+        <iron-a11y-keys target="[[keybindingsTarget]]" keys="left" on-keys-pressed="prev"></iron-a11y-keys>
+        <iron-a11y-keys target="[[keybindingsTarget]]" keys="right" on-keys-pressed="next"></iron-a11y-keys>
+        <iron-a11y-keys target="[[keybindingsTarget]]" keys="s" on-keys-pressed="stop"></iron-a11y-keys>
+        <iron-a11y-keys target="[[keybindingsTarget]]" keys="p" on-keys-pressed="togglePlaylist"></iron-a11y-keys>
 
         <playlist-panel id="playlist" items="[[playlist]]" selected="[[index]]" open="[[openPlaylist]]"></playlist-panel>
         <player-panel id="player" audio="[[audio]]" shrinked="[[openPlaylist]]"></player-panel>
@@ -35,6 +42,11 @@
                 openPlaylist: {
                     type: Boolean,
                     value: false
+                },
+
+                keybindingsTarget: {
+                    type: Object,
+                    value: _ => document
                 }
             },
 

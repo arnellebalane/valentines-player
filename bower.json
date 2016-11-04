@@ -22,6 +22,7 @@
   ],
   "dependencies": {
     "polymer": "^1.7.0",
-    "iron-ajax": "^1.4.3"
+    "iron-ajax": "^1.4.3",
+    "iron-a11y-keys": "^1.0.6"
   }
 }
