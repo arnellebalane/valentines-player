@@ -48,7 +48,13 @@
                     }
                 },
 
+                data: Object,
+
                 source: Object
+            },
+
+            ready() {
+                this.data = new Uint8Array(this.analyser.frequencyBinCount);
             },
 
             attached() {
@@ -73,6 +79,49 @@
 
                     segment.appendChild(visualization);
                     this.appendChild(segment);
+                }
+
+                this._runRenderLoop();
+            },
+
+            _runRenderLoop() {
+                const fps = 60;
+                const interval = 1000 / fps;
+                let then = null;
+
+                const renderLoop = _ => {
+                    requestAnimationFrame(renderLoop);
+
+                    const now = new Date();
+                    if (!then || now - then > interval) {
+                        then = now;
+                        this.render();
+                    }
+                };
+                renderLoop();
+            },
+
+            render() {
+                const paused = this.audio && this.audio.paused;
+                const stopped = this.audio && this.audio.currentTime === 0;
+                if (paused && !stopped) {
+                    return null;
+                }
+
+                this.analyser.getByteTimeDomainData(this.data);
+
+                const width = this.getBoundingClientRect().width;
+                const segmentsCount = 300;
+                const segmentWidth = width / segmentsCount;
+                const step = Math.floor(this.data.length / segmentsCount);
+                const noSignal = 128;
+
+                for (let i = 0, n = 0; i < segmentsCount; i++, n += step) {
+                    const offset = i * segmentWidth;
+                    const element = this.children[i];
+                    const data = this.data[n] === undefined ? noSignal : this.data[n];
+                    const value = Math.abs(data) / noSignal;
+                    element.style.transform = `translateX(${offset}px) scaleY(${value})`;
                 }
             },
 
