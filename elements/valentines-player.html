@@ -45,7 +45,7 @@
 
                 this.$.player.addEventListener('player-action', e => {
                     if (e.detail.action === 'toggle-playlist') {
-                        this.openPlaylist = !this.openPlaylist;
+                        this.togglePlaylist();
                     } else {
                         this[e.detail.action]();
                     }
@@ -92,6 +92,10 @@
             next() {
                 const index = (this.index + 1) % this.playlist.length;
                 this.play(index);
+            },
+
+            togglePlaylist() {
+                this.openPlaylist = !this.openPlaylist;
             },
 
             _computeAudioProperty() {
